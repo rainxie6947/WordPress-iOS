@@ -12,9 +12,11 @@ task default: %w[test]
 
 desc "Install required dependencies"
 task :dependencies => %w[dependencies:check]
+task :all_dependencies => %w[dependencies:all]
 
 namespace :dependencies do
   task :check => %w[bundler:check bundle:check pod:check lint:check]
+  task :all => %w[bundler:check bundle:install_all pod:check lint:check]
 
   namespace :bundler do
     task :check do
@@ -44,7 +46,13 @@ namespace :dependencies do
 
     task :install do
       fold("install.bundler") do
-        sh "bundle install --jobs=3 --retry=3 --path=${BUNDLE_PATH:-vendor/bundle}"
+        sh "bundle install --without danger fastlane --jobs=3 --retry=3 --path=${BUNDLE_PATH:-vendor/bundle}"
+      end
+    end
+    
+    task :install_all do
+      fold("install.bundler") do
+        sh "bundle install --with danger fastlane --jobs=3 --retry=3 --path=${BUNDLE_PATH:-vendor/bundle}"
       end
     end
     CLOBBER << "vendor/bundle"
@@ -284,7 +292,7 @@ def xcodebuild(*build_cmds)
   cmd += " -configuration #{xcode_configuration}"
   cmd += " "
   cmd += build_cmds.map(&:to_s).join(" ")
-  cmd += " | bundle exec xcpretty -f `bundle exec xcpretty-travis-formatter` && exit ${PIPESTATUS[0]}" unless ENV['verbose']
+  cmd += " | bundle exec xcpretty && exit ${PIPESTATUS[0]}" unless ENV['verbose']
   sh(cmd)
 end
 

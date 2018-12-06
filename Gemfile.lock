@@ -251,7 +251,7 @@ DEPENDENCIES
   octokit (~> 4.0)!
   rake!
   rubyzip (~> 1.2.2)!
-  xcpretty-travis-formatter!
+  xcpretty!
 
 BUNDLED WITH
    1.17.1
